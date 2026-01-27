@@ -1,38 +1,26 @@
 import { cookies } from "next/headers";
-import { createServerClient } from "@supabase/ssr";
+import { createServerClient, type CookieOptions } from "@supabase/ssr";
 
-/**
- * Minimal cookie adapter type
- * (Supabase only needs these two)
- */
-type CookieStore = {
-  getAll: () => { name: string; value: string }[];
-  set: (cookie: {
-    name: string;
-    value: string;
-    path?: string;
-    domain?: string;
-    expires?: Date;
-    maxAge?: number;
-    sameSite?: "lax" | "strict" | "none";
-    secure?: boolean;
-  }) => void;
-};
-
-export const createSupabaseServerClient = () => {
-  const cookieStore = cookies() as unknown as CookieStore;
+export const createSupabaseServerClient = async () => {
+  const cookieStore = await cookies(); // ✅ FIX: await added
 
   return createServerClient(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
     process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
     {
       cookies: {
-        getAll() {
-          return cookieStore.getAll();
+        get(name: string) {
+          return cookieStore.get(name)?.value;
         },
-        setAll(cookiesToSet) {
-          cookiesToSet.forEach((cookie) => {
-            cookieStore.set(cookie);
+
+        set(name: string, value: string, options: CookieOptions) {
+          cookieStore.set(name, value, options);
+        },
+
+        remove(name: string, options: CookieOptions) {
+          cookieStore.set(name, "", {
+            ...options,
+            maxAge: 0,
           });
         },
       },
