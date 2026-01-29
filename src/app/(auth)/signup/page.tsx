@@ -41,10 +41,15 @@ export default function SignupPage() {
     try {
       setLoading(true);
 
-      // 1️⃣ Supabase Signup
+      // 1️⃣ Supabase Signup (WITH NAME in metadata)
       const { data, error: signupError } = await supabase.auth.signUp({
         email: form.email,
         password: form.password,
+        options: {
+          data: {
+            name: form.fullName, // ✅ Auth metadata
+          },
+        },
       });
 
       if (signupError) throw signupError;
@@ -52,7 +57,7 @@ export default function SignupPage() {
       const user = data.user;
       if (!user) throw new Error("Signup failed");
 
-      // 2️⃣ Create user profile
+      // 2️⃣ Create profile row
       const { error: profileError } = await supabase.from("profiles").insert({
         id: user.id,
         email: form.email,
@@ -61,7 +66,7 @@ export default function SignupPage() {
 
       if (profileError) throw profileError;
 
-      // 3️⃣ Redirect to dashboard
+      // 3️⃣ Redirect
       router.replace("/dashboard");
     } catch (err: any) {
       setError(err.message || "Something went wrong");
@@ -71,7 +76,7 @@ export default function SignupPage() {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-indigo-600 to-purple-700 px-4">
+    <div className="min-h-screen flex items-center justify-center bg-linear-to-br from-indigo-600 to-purple-700 px-4">
       <motion.div
         initial={{ opacity: 0, y: 40 }}
         animate={{ opacity: 1, y: 0 }}
@@ -99,6 +104,7 @@ export default function SignupPage() {
               <User className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
               <input
                 type="text"
+                required
                 className="w-full pl-10 pr-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500"
                 placeholder="John Doe"
                 value={form.fullName}
@@ -116,6 +122,7 @@ export default function SignupPage() {
               <Mail className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
               <input
                 type="email"
+                required
                 className="w-full pl-10 pr-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500"
                 placeholder="you@company.com"
                 value={form.email}
@@ -133,6 +140,7 @@ export default function SignupPage() {
               <Lock className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
               <input
                 type={showPassword ? "text" : "password"}
+                required
                 className="w-full pl-10 pr-10 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500"
                 placeholder="••••••••"
                 value={form.password}
