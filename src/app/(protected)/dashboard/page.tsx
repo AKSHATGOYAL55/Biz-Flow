@@ -13,13 +13,15 @@ export default async function DashboardPage() {
     redirect("/login");
   }
 
+  // console.log(user)
+
   return (
     <div className="p-6">
       <h1 className="text-2xl font-bold">
         Dashboard
       </h1>
       <p className="text-gray-600 mt-2">
-        Welcome, {user.email}
+        Welcome, {user.user_metadata.name}
       </p>
     </div>
   );
