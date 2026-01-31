@@ -19,9 +19,16 @@ export default function SignupPage() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
 
+  const isFormValid =
+    form.fullName.trim() &&
+    form.email.includes("@") &&
+    form.password.length >= 6;
+
   const handleSignup = async (e: React.FormEvent) => {
     e.preventDefault();
     setError("");
+
+    if (!isFormValid) return;
 
     try {
       setLoading(true);
@@ -64,7 +71,7 @@ export default function SignupPage() {
             Create your account
           </h1>
           <p className="text-sm text-gray-500 mt-2">
-            Get started in less than a minute
+            Free to start • No credit card required
           </p>
         </div>
 
@@ -92,9 +99,9 @@ export default function SignupPage() {
                 type="text"
                 placeholder="John Doe"
                 className="w-full pl-10 pr-3 py-2.5 rounded-xl border border-gray-300
-                bg-white outline-none transition
                 hover:border-gray-400
-                focus:border-indigo-500 focus:ring-4 focus:ring-indigo-100"
+                focus:border-indigo-500 focus:ring-4 focus:ring-indigo-100
+                transition outline-none"
                 value={form.fullName}
                 onChange={(e) =>
                   setForm({ ...form, fullName: e.target.value })
@@ -106,7 +113,7 @@ export default function SignupPage() {
           {/* Email */}
           <div className="group">
             <label className="text-sm font-medium text-gray-700">
-              Email
+              Work Email
             </label>
             <div className="relative mt-1">
               <Mail className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 
@@ -115,9 +122,9 @@ export default function SignupPage() {
                 type="email"
                 placeholder="you@company.com"
                 className="w-full pl-10 pr-3 py-2.5 rounded-xl border border-gray-300
-                bg-white outline-none transition
                 hover:border-gray-400
-                focus:border-indigo-500 focus:ring-4 focus:ring-indigo-100"
+                focus:border-indigo-500 focus:ring-4 focus:ring-indigo-100
+                transition outline-none"
                 value={form.email}
                 onChange={(e) =>
                   setForm({ ...form, email: e.target.value })
@@ -136,11 +143,11 @@ export default function SignupPage() {
                 text-gray-400 group-focus-within:text-indigo-600 transition" />
               <input
                 type={showPassword ? "text" : "password"}
-                placeholder="••••••••"
+                placeholder="At least 6 characters"
                 className="w-full pl-10 pr-10 py-2.5 rounded-xl border border-gray-300
-                bg-white outline-none transition
                 hover:border-gray-400
-                focus:border-indigo-500 focus:ring-4 focus:ring-indigo-100"
+                focus:border-indigo-500 focus:ring-4 focus:ring-indigo-100
+                transition outline-none"
                 value={form.password}
                 onChange={(e) =>
                   setForm({ ...form, password: e.target.value })
@@ -155,28 +162,40 @@ export default function SignupPage() {
                 {showPassword ? <EyeOff size={16} /> : <Eye size={16} />}
               </button>
             </div>
+
+            {/* Password hint */}
+            <p className="mt-1 text-xs text-gray-500">
+              Must be at least 6 characters
+            </p>
           </div>
 
           {/* Submit */}
           <motion.button
-            whileHover={{ scale: 1.02 }}
-            whileTap={{ scale: 0.97 }}
+            whileHover={isFormValid ? { scale: 1.02 } : {}}
+            whileTap={isFormValid ? { scale: 0.97 } : {}}
             type="submit"
-            disabled={loading}
+            disabled={!isFormValid || loading}
             className="w-full flex items-center justify-center gap-2 rounded-xl
             bg-gradient-to-r from-indigo-600 to-purple-600
             hover:from-indigo-500 hover:to-purple-500
             text-white py-2.5 font-medium
             shadow-lg shadow-indigo-500/20
-            transition disabled:opacity-60"
+            transition disabled:opacity-50 disabled:cursor-not-allowed"
           >
             {loading && <Loader2 className="h-4 w-4 animate-spin" />}
             Create Account
           </motion.button>
         </form>
 
+        {/* Terms */}
+        <p className="text-xs text-center text-gray-400 mt-4">
+          By creating an account, you agree to our{" "}
+          <span className="underline cursor-pointer">Terms</span> and{" "}
+          <span className="underline cursor-pointer">Privacy Policy</span>
+        </p>
+
         {/* Footer */}
-        <p className="text-sm text-center text-gray-500 mt-8">
+        <p className="text-sm text-center text-gray-500 mt-6">
           Already have an account?{" "}
           <span
             className="text-indigo-600 font-medium cursor-pointer hover:underline"
@@ -189,4 +208,3 @@ export default function SignupPage() {
     </div>
   );
 }
-
