@@ -50,3 +50,4 @@ export const config = {
     "/dashboard/:path*",
   ],
 };
+
