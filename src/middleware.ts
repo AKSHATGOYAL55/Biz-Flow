@@ -27,25 +27,26 @@ export async function middleware(req: NextRequest) {
     data: { user },
   } = await supabase.auth.getUser();
 
-  const isAuthRoute =
-    req.nextUrl.pathname.startsWith("/login") ||
-    req.nextUrl.pathname.startsWith("/signup");
+  const pathname = req.nextUrl.pathname;
 
-  // ❌ Not logged in → protected route
-  if (!user && !isAuthRoute) {
+  // 🔐 ONLY protected routes
+  const protectedRoutes = ["/dashboard"];
+
+  const isProtectedRoute = protectedRoutes.some((route) =>
+    pathname.startsWith(route)
+  );
+
+  // ❌ not logged in → protected route
+  if (!user && isProtectedRoute) {
     return NextResponse.redirect(new URL("/login", req.url));
   }
 
-  // ✅ Logged in → auth page (login/signup)
-  if (user && isAuthRoute) {
-    return NextResponse.redirect(new URL("/dashboard", req.url));
-  }
-
+  // ✅ login & signup ALWAYS allowed (even if logged in)
   return res;
 }
 
 export const config = {
   matcher: [
-    "/((?!_next/static|_next/image|favicon.ico|auth/callback).*)",
+    "/dashboard/:path*",
   ],
 };
