@@ -29,25 +29,56 @@ export async function middleware(req: NextRequest) {
 
   const pathname = req.nextUrl.pathname;
 
-  // 🔐 ONLY protected routes
-  const protectedRoutes = ["/dashboard"];
+  /* ===============================
+     1️⃣ ROUTE DEFINITIONS
+  =============================== */
 
-  const isProtectedRoute = protectedRoutes.some((route) =>
-    pathname.startsWith(route)
+  const protectedRoutes = ["/dashboard"];
+  const orgOptionalRoutes = ["/create-organization"];
+  const authRoutes = ["/login", "/signup"];
+
+  const isProtectedRoute = protectedRoutes.some((r) =>
+    pathname.startsWith(r)
   );
 
-  // ❌ not logged in → protected route
+  /* ===============================
+     2️⃣ LOGIN CHECK
+  =============================== */
+
   if (!user && isProtectedRoute) {
     return NextResponse.redirect(new URL("/login", req.url));
   }
 
-  // ✅ login & signup ALWAYS allowed (even if logged in)
+  /* ===============================
+     3️⃣ ORG CHECK (Day 7 logic)
+  =============================== */
+
+  if (user && isProtectedRoute) {
+    const { data: membership } = await supabase
+      .from("organization_members")
+      .select("id")
+      .eq("user_id", user.id)
+      .limit(1)
+      .single();
+
+    const isOrgOptionalRoute = orgOptionalRoutes.some((r) =>
+      pathname.startsWith(r)
+    );
+
+    if (!membership && !isOrgOptionalRoute) {
+      return NextResponse.redirect(
+        new URL("/create-organization", req.url)
+      );
+    }
+  }
+
+  /* ===============================
+     4️⃣ ALLOW OTHER ROUTES
+  =============================== */
+
   return res;
 }
 
 export const config = {
-  matcher: [
-    "/dashboard/:path*",
-  ],
+  matcher: ["/dashboard/:path*"],
 };
-
