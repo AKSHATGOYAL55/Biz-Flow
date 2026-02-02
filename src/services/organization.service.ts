@@ -1,27 +1,31 @@
-import { createSupabaseServerClient  } from "@/lib/supabase/server";
+import { createSupabaseServerClient } from "@/lib/supabase/server";
+import { supabaseAdmin } from "@/lib/supabase/admin";
 
 export async function createOrganization(name: string) {
-  const supabase = await createSupabaseServerClient ();
+  // 1️⃣ normal auth client (sirf user nikalne ke liye)
+  const supabase = await createSupabaseServerClient();
 
   const {
     data: { user },
   } = await supabase.auth.getUser();
 
-  if (!user) throw new Error("Unauthorized");
+  if (!user) {
+    throw new Error("Unauthorized");
+  }
 
   const slug = name.toLowerCase().replace(/\s+/g, "-");
 
-  // 1️⃣ Create organization
-  const { data: org, error } = await supabase
+  // 2️⃣ organization create → SERVICE ROLE (RLS bypass)
+  const { data: org, error: orgError } = await supabaseAdmin
     .from("organizations")
     .insert({ name, slug })
     .select()
     .single();
 
-  if (error) throw error;
+  if (orgError) throw orgError;
 
-  // 2️⃣ Make creator ADMIN
-  const { error: memberError } = await supabase
+  // 3️⃣ first admin member → SERVICE ROLE
+  const { error: memberError } = await supabaseAdmin
     .from("organization_members")
     .insert({
       organization_id: org.id,
