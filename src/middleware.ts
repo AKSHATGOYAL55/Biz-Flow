@@ -1,3 +1,4 @@
+// middleware.ts
 import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
 import { createServerClient } from "@supabase/ssr";
@@ -10,50 +11,26 @@ export async function middleware(req: NextRequest) {
     process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
     {
       cookies: {
-        get(name: string) {
-          return req.cookies.get(name)?.value;
+        getAll() {
+          return req.cookies.getAll();
         },
-        set(name: string, value: string, options: any) {
-          res.cookies.set({ name, value, ...options });
-        },
-        remove(name: string, options: any) {
-          res.cookies.set({ name, value: "", ...options });
+        setAll(cookies) {
+          cookies.forEach(({ name, value, options }) => {
+            res.cookies.set(name, value, options);
+          });
         },
       },
     }
   );
 
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
-
+  const { data: { user } } = await supabase.auth.getUser();
   const pathname = req.nextUrl.pathname;
 
-  /* ===============================
-     1️⃣ ROUTE DEFINITIONS
-  =============================== */
-
-  const protectedRoutes = ["/dashboard"];
-  const orgOptionalRoutes = ["/create-organization"];
-  const authRoutes = ["/login", "/signup"];
-
-  const isProtectedRoute = protectedRoutes.some((r) =>
-    pathname.startsWith(r)
-  );
-
-  /* ===============================
-     2️⃣ LOGIN CHECK
-  =============================== */
-
-  if (!user && isProtectedRoute) {
+  if (!user && pathname.startsWith("/dashboard")) {
     return NextResponse.redirect(new URL("/login", req.url));
   }
 
-  /* ===============================
-     3️⃣ ORG CHECK (Day 7 logic)
-  =============================== */
-
-  if (user && isProtectedRoute) {
+  if (user && pathname.startsWith("/dashboard")) {
     const { data: membership } = await supabase
       .from("organization_members")
       .select("id")
@@ -61,20 +38,12 @@ export async function middleware(req: NextRequest) {
       .limit(1)
       .single();
 
-    const isOrgOptionalRoute = orgOptionalRoutes.some((r) =>
-      pathname.startsWith(r)
-    );
-
-    if (!membership && !isOrgOptionalRoute) {
+    if (!membership && !pathname.startsWith("/create-organization")) {
       return NextResponse.redirect(
         new URL("/create-organization", req.url)
       );
     }
   }
-
-  /* ===============================
-     4️⃣ ALLOW OTHER ROUTES
-  =============================== */
 
   return res;
 }
