@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { useRouter } from "next/navigation";
 import {
   motion,
   useScroll,
@@ -13,7 +14,9 @@ import {
   Layers,
   FileText,
   CheckCircle2,
-  ArrowRight,
+  TrendingUp,
+  Clock,
+  ShieldCheck,
 } from "lucide-react";
 
 import DashboardPanel from "@/components/dashboard/layout/DashboardPanel";
@@ -22,8 +25,9 @@ import DashboardPanel from "@/components/dashboard/layout/DashboardPanel";
 
 export default function HomePage() {
   const [dashboardOpen, setDashboardOpen] = useState(false);
-  const { scrollY } = useScroll();
+  const router = useRouter();
 
+  const { scrollY } = useScroll();
   const blur = useTransform(scrollY, [0, 80], [0, 12]);
   const opacity = useTransform(scrollY, [0, 80], [0.6, 0.9]);
 
@@ -32,14 +36,13 @@ export default function HomePage() {
 
   return (
     <>
-      {/* 🔥 DASHBOARD (SAME PAGE) */}
       <DashboardPanel
         open={dashboardOpen}
         onClose={() => setDashboardOpen(false)}
       />
 
       <div className="min-h-screen bg-gradient-to-br from-zinc-50 to-zinc-100">
-        {/* ================= NAVBAR ================= */}
+        {/* NAVBAR */}
         <motion.header
           style={{ backdropFilter, backgroundColor }}
           className="sticky top-0 z-30 border-b"
@@ -49,45 +52,33 @@ export default function HomePage() {
               <div className="h-10 w-10 rounded-xl bg-gradient-to-br from-indigo-500 to-violet-600 flex items-center justify-center text-white font-bold shadow">
                 B
               </div>
-              <span className="text-lg font-semibold tracking-tight">
-                BizFlow
-              </span>
+              <span className="text-lg font-semibold">BizFlow</span>
             </div>
 
-            {/* 👉 SAME PAGE DASHBOARD OPEN */}
             <button
               onClick={() => setDashboardOpen(true)}
-              className="px-4 py-2 rounded-xl bg-indigo-600 text-white font-medium hover:bg-indigo-700 transition"
+              className="px-4 py-2 rounded-xl bg-indigo-600 text-white hover:bg-indigo-700 transition"
             >
               Open Dashboard
             </button>
           </div>
         </motion.header>
 
-        {/* ================= MAIN ================= */}
+        {/* MAIN */}
         <main className="max-w-7xl mx-auto px-6 py-12 space-y-20">
-          {/* ===== WELCOME ===== */}
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-          >
-            <h1 className="text-3xl font-semibold tracking-tight">
-              Welcome to BizFlow 👋
-            </h1>
+          {/* WELCOME */}
+          <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }}>
+            <h1 className="text-3xl font-semibold">Welcome to BizFlow 👋</h1>
             <p className="mt-2 text-zinc-600">
-              Set up your workspace and start managing your business.
+              One place to manage your organization, projects and payments.
             </p>
           </motion.div>
 
-          {/* ===== PROGRESS TRACKER ===== */}
+          {/* PROGRESS */}
           <section className="rounded-3xl bg-white p-8 border shadow-sm">
             <div className="flex items-center justify-between mb-6">
-              <h2 className="text-xl font-semibold">
-                Workspace Setup Progress
-              </h2>
-              <span className="text-sm text-zinc-500">
-                4 / 22 completed
-              </span>
+              <h2 className="text-xl font-semibold">Workspace Setup</h2>
+              <span className="text-sm text-zinc-500">4 / 22 completed</span>
             </div>
 
             <div className="h-3 w-full rounded-full bg-zinc-100 overflow-hidden mb-10">
@@ -103,66 +94,53 @@ export default function HomePage() {
               {steps.map((step, i) => (
                 <motion.div
                   key={i}
+                  onClick={() => router.push(step.path)}
                   initial={{ opacity: 0, y: 20 }}
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ delay: i * 0.1 }}
-                  className="rounded-2xl bg-zinc-50 p-5 border hover:shadow-md transition"
+                  className="cursor-pointer rounded-2xl bg-zinc-50 p-5 border hover:bg-white hover:shadow-md transition"
                 >
                   <div className="flex items-center justify-between">
                     <div className="h-10 w-10 rounded-xl bg-indigo-100 text-indigo-600 flex items-center justify-center">
                       {step.icon}
                     </div>
                     {step.done && (
-                      <CheckCircle2
-                        size={18}
-                        className="text-emerald-500"
-                      />
+                      <CheckCircle2 size={18} className="text-emerald-500" />
                     )}
                   </div>
 
-                  <h3 className="mt-4 font-semibold">
-                    {step.title}
-                  </h3>
-                  <p className="mt-1 text-sm text-zinc-600">
-                    {step.desc}
-                  </p>
+                  <h3 className="mt-4 font-semibold">{step.title}</h3>
+                  <p className="mt-1 text-sm text-zinc-600">{step.desc}</p>
                 </motion.div>
               ))}
             </div>
           </section>
 
-          {/* ===== QUICK ACTIONS ===== */}
-          <section>
-            <h2 className="text-xl font-semibold mb-6">
-              Quick Actions
-            </h2>
+          {/* ===== NEW RICH SECTION (REPLACED QUICK ACTIONS) ===== */}
+          <section className="grid gap-8 md:grid-cols-3">
+            {insights.map((item, i) => (
+              <motion.div
+                key={i}
+                initial={{ opacity: 0, y: 30 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true }}
+                transition={{ delay: i * 0.15 }}
+                className="rounded-3xl bg-white p-8 border shadow-sm hover:shadow-md transition"
+              >
+                <div className="h-12 w-12 rounded-2xl bg-indigo-100 text-indigo-600 flex items-center justify-center mb-6">
+                  {item.icon}
+                </div>
 
-            <div className="grid gap-8 md:grid-cols-2">
-              {actions.map((a, i) => (
-                <motion.div
-                  key={i}
-                  whileHover={{ y: -4 }}
-                  whileTap={{ scale: 0.98 }}
-                  className="rounded-3xl bg-white p-8 border shadow-sm flex justify-between items-center"
-                >
-                  <div>
-                    <h3 className="text-lg font-semibold">
-                      {a.title}
-                    </h3>
-                    <p className="mt-1 text-sm text-zinc-600">
-                      {a.desc}
-                    </p>
-                  </div>
+                <h3 className="text-lg font-semibold">{item.title}</h3>
+                <p className="mt-2 text-sm text-zinc-600 leading-relaxed">
+                  {item.desc}
+                </p>
 
-                  <button
-                    onClick={() => setDashboardOpen(true)}
-                    className="h-12 w-12 rounded-2xl bg-indigo-600 text-white flex items-center justify-center shadow"
-                  >
-                    <ArrowRight size={18} />
-                  </button>
-                </motion.div>
-              ))}
-            </div>
+                <div className="mt-6 text-sm font-medium text-indigo-600">
+                  {item.meta}
+                </div>
+              </motion.div>
+            ))}
           </section>
         </main>
       </div>
@@ -177,43 +155,49 @@ const steps = [
     title: "Create Organization",
     desc: "Set up your company workspace.",
     icon: <Building2 size={20} />,
+    path: "/organization",
     done: false,
   },
   {
-    title: "Invite Team / Clients",
-    desc: "Add members with role-based access.",
+    title: "Invite Team",
+    desc: "Add members with roles.",
     icon: <Users size={20} />,
+    path: "/team",
     done: false,
   },
   {
     title: "Create Projects",
-    desc: "Organize work into projects.",
+    desc: "Manage work efficiently.",
     icon: <Layers size={20} />,
+    path: "/projects/create",
     done: false,
   },
   {
     title: "Generate Invoices",
-    desc: "Create invoices per project.",
+    desc: "Bill clients professionally.",
     icon: <FileText size={20} />,
+    path: "/invoices/create",
     done: false,
   },
 ];
 
-const actions = [
+const insights = [
   {
-    title: "Create Organization",
-    desc: "Start your business workspace.",
+    title: "Business Growth",
+    desc: "Track how your organization scales with projects and revenue insights.",
+    icon: <TrendingUp size={22} />,
+    meta: "Updated in real time",
   },
   {
-    title: "Create New Project",
-    desc: "Add a project and assign tasks.",
+    title: "Time & Productivity",
+    desc: "Understand where your team spends time and improve delivery speed.",
+    icon: <Clock size={22} />,
+    meta: "Weekly analytics",
   },
   {
-    title: "Generate Invoice",
-    desc: "Create invoice for a project.",
-  },
-  {
-    title: "Receive Payments",
-    desc: "Allow clients to pay online.",
+    title: "Secure & Reliable",
+    desc: "Enterprise-grade security to keep your data protected at all times.",
+    icon: <ShieldCheck size={22} />,
+    meta: "SOC-ready infrastructure",
   },
 ];
