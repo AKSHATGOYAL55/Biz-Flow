@@ -33,7 +33,7 @@ export default function LoginPage() {
 
       if (error) throw error;
 
-      router.replace("/dashboard");
+      router.replace("/");
     } catch (err: any) {
       setError(err.message || "Invalid email or password");
     } finally {
