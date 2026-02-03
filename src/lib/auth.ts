@@ -6,6 +6,36 @@ export type Role = "ADMIN" | "MEMBER" | "CLIENT";
 /**
  * Get active organization id for logged-in user
  */
+// export async function getActiveOrgId(
+//   supabase: SupabaseClient
+// ): Promise<string | null> {
+//   const {
+//     data: { user },
+//   } = await supabase.auth.getUser();
+
+//   if (!user) return null;
+
+//   const { data, error } = await supabase
+//     .from("organization_members")
+//     .select("organization_id")
+//     .eq("user_id", user.id)
+//     // .eq("status", "active")
+//     .limit(1)
+//     .single();
+
+//   if (error || !data) return null;
+
+//   return data.organization_id;
+// }
+
+
+// import { SupabaseClient } from "@supabase/supabase-js";
+// import { SupabaseClient } from "@supabase/supabase-js";
+
+/**
+ * Get active organization id for logged-in user
+ * Picks latest organization if multiple exist
+ */
 export async function getActiveOrgId(
   supabase: SupabaseClient
 ): Promise<string | null> {
@@ -17,20 +47,20 @@ export async function getActiveOrgId(
 
   const { data, error } = await supabase
     .from("organization_members")
-    .select("organization_id")
+    .select("organization_id, created_at")
     .eq("user_id", user.id)
-    .eq("status", "active")
-    .limit(1)
-    .single();
+    .order("created_at", { ascending: false })
+    .limit(1);
 
-  if (error || !data) return null;
+  if (error || !data || data.length === 0) {
+    console.log("❌ No org membership found");
+    return null;
+  }
 
-  return data.organization_id;
+  return data[0].organization_id;
 }
 
-/**
- * Get role of current user inside an organization
- */
+
 export async function getUserRole(
   orgId: string,
   supabase: SupabaseClient
@@ -54,5 +84,66 @@ export async function getUserRole(
     throw new Error("User role not found");
   }
 
-  return data.role as Role;
+  // ✅ YAHIN DAALNA HAI
+  return data.role.toUpperCase() as Role;
 }
+
+
+
+
+/**
+ * Get role of current user inside an organization
+ */
+
+// export async function getUserRole(
+//   orgId: string,
+//   supabase: SupabaseClient
+// ): Promise<Role> {
+//   const {
+//     data: { user },
+//   } = await supabase.auth.getUser();
+
+//   if (!user) {
+//     throw new Error("User not authenticated");
+//   }
+
+//   const { data, error } = await supabase
+//     .from("organization_members")
+//     .select("role")
+//     .eq("organization_id", orgId)
+//     .eq("user_id", user.id)
+//     .single();
+
+//   if (error || !data) {
+//     throw new Error("User role not found");
+//   }
+
+//   return data.role.toUpperCase() as Role;
+// }
+
+
+// export async function getUserRole(
+//   orgId: string,
+//   supabase: SupabaseClient
+// ): Promise<Role> {
+//   const {
+//     data: { user },
+//   } = await supabase.auth.getUser();
+
+//   if (!user) {
+//     throw new Error("User not authenticated");
+//   }
+
+//   const { data, error } = await supabase
+//     .from("organization_members")
+//     .select("role")
+//     .eq("organization_id", orgId)
+//     .eq("user_id", user.id)
+//     .single();
+
+//   if (error || !data) {
+//     throw new Error("User role not found");
+//   }
+
+//   return data.role as Role;
+// }

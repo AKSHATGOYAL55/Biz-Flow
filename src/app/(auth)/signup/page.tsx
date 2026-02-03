@@ -47,7 +47,7 @@ export default function SignupPage() {
         full_name: form.fullName,
       });
 
-      router.replace("/dashboard");
+      router.replace("/");
     } catch (err: any) {
       setError(err.message || "Something went wrong");
     } finally {

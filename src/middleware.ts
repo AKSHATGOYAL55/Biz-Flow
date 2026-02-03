@@ -1,3 +1,66 @@
+// // middleware.ts
+// import { NextResponse } from "next/server";
+// import type { NextRequest } from "next/server";
+// import { createServerClient } from "@supabase/ssr";
+
+// export async function middleware(req: NextRequest) {
+//   const res = NextResponse.next();
+
+//   const supabase = createServerClient(
+//     process.env.NEXT_PUBLIC_SUPABASE_URL!,
+//     process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
+//     {
+//       cookies: {
+//         getAll() {
+//           return req.cookies.getAll();
+//         },
+//         setAll(cookiesToSet) {
+//           cookiesToSet.forEach(({ name, value, options }) => {
+//             res.cookies.set(name, value, options);
+//           });
+//         },
+//       },
+//     }
+//   );
+
+//   const {
+//     data: { user },
+//   } = await supabase.auth.getUser();
+
+//   const pathname = req.nextUrl.pathname;
+
+//   const protectedRoutes = [
+//     "/team",
+//     "/projects",
+//     "/tasks",
+//     "/invoices",
+//     "/settings",
+//   ];
+
+//   const isProtected = protectedRoutes.some((route) =>
+//     pathname.startsWith(route)
+//   );
+
+//   // 🔐 ONLY auth guard here
+//   if (!user && isProtected) {
+//     return NextResponse.redirect(new URL("/login", req.url));
+//   }
+
+//   // ❌ NO org / role logic in middleware
+//   return res;
+// }
+
+// export const config = {
+//   matcher: [
+//     "/team/:path*",
+//     "/projects/:path*",
+//     "/tasks/:path*",
+//     "/invoices/:path*",
+//     "/settings/:path*",
+//   ],
+// };
+
+
 // middleware.ts
 import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
@@ -14,8 +77,8 @@ export async function middleware(req: NextRequest) {
         getAll() {
           return req.cookies.getAll();
         },
-        setAll(cookies) {
-          cookies.forEach(({ name, value, options }) => {
+        setAll(cookiesToSet) {
+          cookiesToSet.forEach(({ name, value, options }) => {
             res.cookies.set(name, value, options);
           });
         },
@@ -23,31 +86,36 @@ export async function middleware(req: NextRequest) {
     }
   );
 
-  const { data: { user } } = await supabase.auth.getUser();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+
   const pathname = req.nextUrl.pathname;
 
-  if (!user && pathname.startsWith("/dashboard")) {
+  const protectedRoutes = [
+    "/projects",
+    "/tasks",
+    "/invoices",
+    "/settings",
+  ];
+
+  const isProtected = protectedRoutes.some((route) =>
+    pathname.startsWith(route)
+  );
+
+  // 🔐 minimal auth guard ONLY
+  if (!user && isProtected) {
     return NextResponse.redirect(new URL("/login", req.url));
-  }
-
-  if (user && pathname.startsWith("/dashboard")) {
-    const { data: membership } = await supabase
-      .from("organization_members")
-      .select("id")
-      .eq("user_id", user.id)
-      .limit(1)
-      .single();
-
-    if (!membership && !pathname.startsWith("/create-organization")) {
-      return NextResponse.redirect(
-        new URL("/create-organization", req.url)
-      );
-    }
   }
 
   return res;
 }
 
 export const config = {
-  matcher: ["/dashboard/:path*"],
+  matcher: [
+    "/projects/:path*",
+    "/tasks/:path*",
+    "/invoices/:path*",
+    "/settings/:path*",
+  ],
 };
