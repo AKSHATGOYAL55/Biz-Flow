@@ -24,9 +24,14 @@ export default function CreateOrganizationPage() {
 
     setLoading(false);
 
+
+    // yha pr change hoga
+
     if (res.ok) {
       router.push("/dashboard");
     }
+
+    //yha tk 
   };
 
   return (
