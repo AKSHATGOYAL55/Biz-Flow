@@ -13,11 +13,11 @@ import {
   Layers,
   FileText,
   CheckCircle2,
-  ArrowRight,
+  TrendingUp,
+  IndianRupee,
 } from "lucide-react";
 
 import DashboardPanel from "@/components/dashboard/layout/DashboardPanel";
-import BizFlowIcon from "@/components/common/BizFlowIcon";
 
 /* ================= HOME PAGE ================= */
 
@@ -41,7 +41,6 @@ export default function HomePage() {
         onClose={() => setDashboardOpen(false)}
       />
 
-      {/* ✅ MAIN WRAPPER (IMPORTANT FIX) */}
       <div
         className={`
           min-h-screen bg-gradient-to-br from-zinc-50 to-zinc-100
@@ -55,12 +54,9 @@ export default function HomePage() {
           className="sticky top-0 z-30 border-b border-zinc-200"
         >
           <div className="max-w-7xl mx-auto px-6 py-5 flex items-center justify-between">
-            <div className="flex items-center gap-3">
-              <BizFlowIcon size={40} />
-              <span className="text-lg font-semibold tracking-tight">
-                BizFlow
-              </span>
-            </div>
+            <span className="text-lg font-semibold tracking-tight">
+              BizFlow
+            </span>
 
             <button
               onClick={() => setDashboardOpen(true)}
@@ -78,15 +74,61 @@ export default function HomePage() {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
           >
-            <h1 className="text-3xl font-semibold tracking-tight">
+            {/* <h1 className="text-3xl font-semibold tracking-tight">
               Welcome to BizFlow 👋
             </h1>
             <p className="mt-2 text-zinc-600">
-              Set up your workspace and start managing your business.
-            </p>
+              Track your revenue and complete workspace setup.
+            </p> */}
           </motion.div>
 
-          {/* ===== PROGRESS TRACKER ===== */}
+          {/* ===== 💰 REVENUE OVERVIEW ===== */}
+          <section className="rounded-3xl bg-white p-8 border shadow-sm">
+            <div className="flex items-center justify-between mb-8">
+              <h2 className="text-xl font-semibold">
+                Revenue Overview
+              </h2>
+              <TrendingUp className="text-indigo-600" />
+            </div>
+
+            <div className="grid gap-6 md:grid-cols-3">
+              {revenueStats.map((stat, i) => (
+                <motion.div
+                  key={i}
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: i * 0.1 }}
+                  className="rounded-2xl border bg-zinc-50 p-6 hover:shadow-md transition"
+                >
+                  <div className="flex items-center justify-between">
+                    <div className="h-12 w-12 rounded-xl bg-indigo-100 text-indigo-600 flex items-center justify-center">
+                      <IndianRupee size={20} />
+                    </div>
+                    <span className="text-sm text-zinc-500">
+                      {stat.label}
+                    </span>
+                  </div>
+
+                  <h3 className="mt-4 text-2xl font-bold">
+                    ₹ {stat.amount}
+                  </h3>
+
+                  {stat.progress && (
+                    <div className="mt-4 h-2 w-full bg-zinc-200 rounded-full overflow-hidden">
+                      <motion.div
+                        initial={{ width: 0 }}
+                        animate={{ width: stat.progress }}
+                        transition={{ duration: 0.6 }}
+                        className="h-full bg-gradient-to-r from-indigo-500 to-violet-600"
+                      />
+                    </div>
+                  )}
+                </motion.div>
+              ))}
+            </div>
+          </section>
+
+          {/* ===== WORKSPACE SETUP PROGRESS ===== */}
           <section className="rounded-3xl bg-white p-8 border shadow-sm">
             <div className="flex items-center justify-between mb-6">
               <h2 className="text-xl font-semibold">
@@ -137,40 +179,6 @@ export default function HomePage() {
               ))}
             </div>
           </section>
-
-          {/* ===== QUICK ACTIONS ===== */}
-          <section>
-            <h2 className="text-xl font-semibold mb-6">
-              Quick Actions
-            </h2>
-
-            <div className="grid gap-8 md:grid-cols-2">
-              {actions.map((a, i) => (
-                <motion.div
-                  key={i}
-                  whileHover={{ y: -4 }}
-                  whileTap={{ scale: 0.98 }}
-                  className="rounded-3xl bg-white p-8 border shadow-sm flex justify-between items-center"
-                >
-                  <div>
-                    <h3 className="text-lg font-semibold">
-                      {a.title}
-                    </h3>
-                    <p className="mt-1 text-sm text-zinc-600">
-                      {a.desc}
-                    </p>
-                  </div>
-
-                  <button
-                    onClick={() => setDashboardOpen(true)}
-                    className="h-12 w-12 rounded-2xl bg-indigo-600 text-white flex items-center justify-center shadow"
-                  >
-                    <ArrowRight size={18} />
-                  </button>
-                </motion.div>
-              ))}
-            </div>
-          </section>
         </main>
       </div>
     </>
@@ -178,6 +186,23 @@ export default function HomePage() {
 }
 
 /* ================= DATA ================= */
+
+const revenueStats = [
+  {
+    label: "This Month",
+    amount: "1,20,000",
+    progress: "65%",
+  },
+  {
+    label: "This Year",
+    amount: "9,80,000",
+    progress: "48%",
+  },
+  {
+    label: "All Time",
+    amount: "15,40,000",
+  },
+];
 
 const steps = [
   {
@@ -203,24 +228,5 @@ const steps = [
     desc: "Create invoices per project.",
     icon: <FileText size={20} />,
     done: false,
-  },
-];
-
-const actions = [
-  {
-    title: "Create Organization",
-    desc: "Start your business workspace.",
-  },
-  {
-    title: "Create New Project",
-    desc: "Add a project and assign tasks.",
-  },
-  {
-    title: "Generate Invoice",
-    desc: "Create invoice for a project.",
-  },
-  {
-    title: "Receive Payments",
-    desc: "Allow clients to pay online.",
   },
 ];
