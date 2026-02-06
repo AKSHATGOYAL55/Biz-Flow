@@ -20,6 +20,7 @@ import {
 } from "lucide-react";
 
 import DashboardPanel from "@/components/dashboard/layout/DashboardPanel";
+import BizFlowIcon from "@/components/common/BizFlowIcon";
 
 /* ================= HOME PAGE ================= */
 
@@ -32,23 +33,39 @@ export default function HomePage() {
   const opacity = useTransform(scrollY, [0, 80], [0.6, 0.9]);
 
   const backdropFilter = useMotionTemplate`blur(${blur}px)`;
-  const backgroundColor = useMotionTemplate`rgba(255, 255, 255, ${opacity})`;
+  const backgroundColor =
+    useMotionTemplate`rgba(255, 255, 255, ${opacity})`;
 
   return (
     <>
+      {/* 🔥 DASHBOARD */}
       <DashboardPanel
         open={dashboardOpen}
+        onOpen={() => setDashboardOpen(true)}
         onClose={() => setDashboardOpen(false)}
       />
 
+      {/* ✅ MAIN WRAPPER (IMPORTANT FIX) */}
+      <div
+        className={`
+          min-h-screen bg-gradient-to-br from-zinc-50 to-zinc-100
+          transition-all duration-300
+          ${dashboardOpen ? "pl-[300px]" : "pl-[80px]"}
+        `}
+      >
+        {/* ================= NAVBAR ================= */}
       <div className="min-h-screen bg-gradient-to-br from-zinc-50 to-zinc-100">
         {/* NAVBAR */}
         <motion.header
           style={{ backdropFilter, backgroundColor }}
-          className="sticky top-0 z-30 border-b"
+          className="sticky top-0 z-30 border-b border-zinc-200"
         >
-          <div className="max-w-7xl mx-auto px-6 py-4 flex items-center justify-between">
+          <div className="max-w-7xl mx-auto px-6 py-5 flex items-center justify-between">
             <div className="flex items-center gap-3">
+              {/* <BizFlowIcon size={40} /> */}
+              <span className="text-lg font-semibold tracking-tight">
+                BizFlow
+              </span>
               <div className="h-10 w-10 rounded-xl bg-gradient-to-br from-indigo-500 to-violet-600 flex items-center justify-center text-white font-bold shadow">
                 B
               </div>

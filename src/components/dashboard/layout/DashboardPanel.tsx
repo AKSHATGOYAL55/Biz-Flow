@@ -1,23 +1,27 @@
 "use client";
 
 import { useEffect, useRef } from "react";
-import { motion, AnimatePresence } from "framer-motion";
+import { motion } from "framer-motion";
 import {
   LayoutDashboard,
   Users,
   Settings,
   LogOut,
   X,
-  Layers,
+  ChevronRight,
 } from "lucide-react";
 import { useRouter } from "next/navigation";
+import clsx from "clsx";
+import BizFlowIcon from "@/components/common/BizFlowIcon";
 
 export default function DashboardPanel({
   open,
   onClose,
+  onOpen,
 }: {
   open: boolean;
   onClose: () => void;
+  onOpen: () => void;
 }) {
   const sidebarRef = useRef<HTMLDivElement>(null);
   const router = useRouter();
@@ -39,112 +43,99 @@ export default function DashboardPanel({
   }, [open, onClose]);
 
   return (
-    <AnimatePresence>
+    <>
       {open && (
-        <>
-          {/* 🔲 Overlay */}
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 0.4 }}
-            exit={{ opacity: 0 }}
-            className="fixed inset-0 bg-black z-40"
-          />
-
-          {/* 📌 Sidebar */}
-          <motion.aside
-            ref={sidebarRef}
-            initial={{ x: -320 }}
-            animate={{ x: 0 }}
-            exit={{ x: -320 }}
-            transition={{ type: "spring", stiffness: 260, damping: 28 }}
-            className="
-              fixed top-0 left-0 h-full w-80
-              bg-white border-r shadow-2xl
-              z-50 rounded-tr-3xl rounded-br-3xl
-            "
-          >
-            {/* Header */}
-            <div className="px-6 py-6 border-b flex items-center justify-between">
-              <div className="flex items-center gap-4">
-                <BizFlowIcon />
-                <div>
-                  <h2 className="text-lg font-semibold">BizFlow</h2>
-                  <p className="text-xs text-gray-500">
-                    Premium Workspace
-                  </p>
-                </div>
-              </div>
-
-              <button onClick={onClose}>
-                <X size={18} />
-              </button>
-            </div>
-
-            {/* Nav */}
-            <nav className="p-5 space-y-2">
-              <SidebarItem icon={<LayoutDashboard />} label="Overview" />
-
-              <SidebarItem
-                icon={<Users />}
-                label="Team"
-                onClick={() => {
-                  onClose();
-                  router.push("/team");
-                }}
-              />
-
-              <SidebarItem
-                icon={<Settings />}
-                label="Settings"
-              />
-            </nav>
-
-            {/* Footer */}
-            <div className="absolute bottom-6 left-5 right-5">
-              <button className="w-full flex items-center gap-3 p-3 rounded-2xl bg-red-600 text-white">
-                <LogOut size={18} />
-                <span className="font-medium">Logout</span>
-              </button>
-            </div>
-          </motion.aside>
-        </>
+        <motion.div
+          className="fixed inset-0 bg-black/40 z-40"
+        />
       )}
-    </AnimatePresence>
+
+      <motion.aside
+        ref={sidebarRef}
+        animate={{ width: open ? 300 : 80 }}
+        transition={{ type: "spring", stiffness: 260, damping: 26 }}
+        className="
+          fixed top-0 left-0 h-full
+          bg-white border-r border-zinc-200
+          z-50 flex flex-col
+        "
+      >
+        {/* HEADER */}
+        <div
+          className={clsx(
+            "flex items-center justify-between border-b border-zinc-200 py-5",
+            open ? "px-5" : "px-4"
+          )}
+        >
+          <div className="flex items-center gap-3">
+            <BizFlowIcon />
+            {open && (
+              <span className="text-lg font-semibold">
+                BizFlow
+              </span>
+            )}
+          </div>
+
+          {open ? (
+            <button onClick={onClose}>
+              <X size={18} />
+            </button>
+          ) : (
+            <button onClick={onOpen}>
+              <ChevronRight size={18} />
+            </button>
+          )}
+        </div>
+
+        {/* NAV */}
+        <nav className="flex-1 px-2 py-4 space-y-1">
+          <SidebarItem icon={<LayoutDashboard />} label="Overview" open={open} />
+          <SidebarItem
+            icon={<Users />}
+            label="Team"
+            open={open}
+            onClick={() => router.push("/team")}
+          />
+          <SidebarItem icon={<Settings />} label="Settings" open={open} />
+        </nav>
+
+        {/* FOOTER */}
+        <div className="p-3 border-t border-zinc-200">
+          <button
+            className={clsx(
+              "w-full flex items-center gap-3 rounded-xl text-white bg-red-600",
+              open
+                ? "px-4 py-3"
+                : "h-12 w-12 justify-center mx-auto"
+            )}
+          >
+            <LogOut size={18} />
+            {open && <span>Logout</span>}
+          </button>
+        </div>
+      </motion.aside>
+    </>
   );
 }
-
-/* ---------- helpers ---------- */
 
 function SidebarItem({
   icon,
   label,
+  open,
   onClick,
-}: {
-  icon: React.ReactNode;
-  label: string;
-  onClick?: () => void;
-}) {
+}: any) {
   return (
     <motion.button
       onClick={onClick}
-      whileHover={{ scale: 1.03 }}
-      whileTap={{ scale: 0.97 }}
-      className="w-full flex items-center gap-4 px-4 py-3 rounded-2xl hover:bg-zinc-100"
+      className={clsx(
+        "group relative w-full flex items-center gap-4 rounded-xl transition",
+        open
+          ? "px-4 py-3 hover:bg-zinc-100"
+          : "h-12 w-12 mx-auto justify-center hover:bg-zinc-100"
+      )}
     >
       <div className="text-indigo-600">{icon}</div>
-      <span className="font-medium">{label}</span>
+      {open && <span>{label}</span>}
     </motion.button>
-  );
-}
-
-function BizFlowIcon() {
-  return (
-    <motion.div
-      animate={{ rotate: 360 }}
-      transition={{ duration: 0.6 }}
-      className="h-12 w-12 rounded-2xl bg-gradient-to-br from-indigo-500 to-violet-600 flex items-center justify-center"
-    >
-      <Layers size={22} className="text-white" />
-    </motion.div>
   );
 }
