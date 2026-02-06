@@ -10,12 +10,12 @@ export default async function TeamLayout({
   const supabase = await createSupabaseServerClient();
 
   const orgId = await getActiveOrgId(supabase);
-  console.log("🟡 orgId:", orgId);
+  // console.log("🟡 orgId:", orgId);
 
   if (!orgId) redirect("/");
 
   const role = await getUserRole(orgId, supabase);
-  console.log("🟡 role:", role);
+  // console.log("🟡 role:", role);
 
   if (role !== "ADMIN") redirect("/");
 
