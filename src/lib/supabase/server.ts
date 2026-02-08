@@ -1,35 +1,26 @@
-// src/lib/supabase/server.ts
 import { createServerClient } from "@supabase/ssr";
 import { cookies } from "next/headers";
 import type { CookieOptions } from "@supabase/ssr";
 
 export async function createSupabaseServerClient() {
-  const cookieStore = await cookies(); // ✅ MUST await
+  // ✅ MUST await (Next.js 15 rule)
+  const cookieStore = await cookies();
 
   return createServerClient(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
     process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
     {
       cookies: {
-        getAll(): { name: string; value: string }[] {
-          return cookieStore.getAll().map((c) => ({
-            name: c.name,
-            value: c.value,
-          }));
+        getAll() {
+          return cookieStore.getAll();
         },
 
-        setAll(
-          cookiesToSet: {
-            name: string;
-            value: string;
-            options?: CookieOptions;
-          }[]
-        ) {
+        setAll(cookiesToSet) {
           cookiesToSet.forEach(({ name, value, options }) => {
             try {
-              cookieStore.set(name, value, options);
+              cookieStore.set(name, value, options as CookieOptions);
             } catch {
-              // Server Components me safe ignore
+              // Safe ignore (Server Components)
             }
           });
         },
