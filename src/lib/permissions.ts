@@ -5,3 +5,8 @@ export const sidebarConfig: Record<Role, string[]> = {
   MEMBER: ["dashboard","projects","tasks","chat"],
   CLIENT: ["dashboard","invoices","chat"],
 };
+
+
+export function canCreateProject(role: string) {
+  return role === "admin";
+}

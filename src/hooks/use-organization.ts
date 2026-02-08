@@ -1,12 +1,9 @@
-"use client";
-
 import { useEffect, useState } from "react";
-import { supabase } from "@/lib/supabase/client";
+import { createSupabaseBrowserClient } from "@/lib/supabase/client";
 
 export type Membership = {
   organization_id: string;
   role: "ADMIN" | "MEMBER" | "CLIENT";
-  status: "active" | "invited";
 };
 
 export function useOrganization() {
@@ -14,41 +11,38 @@ export function useOrganization() {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    const loadMembership = async () => {
-      const {
-        data: { user },
-      } = await supabase.auth.getUser();
+    const supabase = createSupabaseBrowserClient();
 
-      if (!user) {
-        setMembership(null);
-        setLoading(false);
-        return;
-      }
+    async function loadOrganization() {
+      try {
+        const {
+          data: { user },
+        } = await supabase.auth.getUser();
 
-      const { data, error } = await supabase
-        .from("organization_members")
-        .select("organization_id, role, status")
-        .eq("user_id", user.id)
-        .eq("status", "active")
-        .limit(1)
-        .single();
+        if (!user) {
+          setMembership(null);
+          return;
+        }
 
-      if (error) {
-        console.error("useOrganization error:", error.message);
-        setMembership(null);
-      } else {
+        const { data, error } = await supabase
+          .from("organization_members")
+          .select("organization_id, role")
+          .eq("user_id", user.id)
+          .single();
+
+        if (error) throw error;
+
         setMembership(data);
+      } catch (error) {
+        console.error("useOrganization error:", error);
+        setMembership(null);
+      } finally {
+        setLoading(false);
       }
+    }
 
-      setLoading(false);
-    };
-
-    loadMembership();
+    loadOrganization();
   }, []);
 
-  return {
-    membership,
-    organizationId: membership?.organization_id ?? null,
-    loading,
-  };
+  return { membership, loading };
 }

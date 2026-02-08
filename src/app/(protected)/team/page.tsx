@@ -16,8 +16,8 @@ const teamMembers = [
     role: "Admin",
   },
   {
-    name: "Rahul Sharma",
-    email: "rahul@bizflow.com",
+    name: "Divyanshi",
+    email: "divyanshi@bizflow.com",
     role: "Editor",
   },
   {
