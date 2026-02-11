@@ -30,7 +30,9 @@ export function useOrganization() {
           .eq("user_id", user.id)
           .single();
 
-        if (error) throw error;
+        if (error && error.code !== "PGRST116") {
+  console.error(error);
+}
 
         setMembership(data);
       } catch (error) {

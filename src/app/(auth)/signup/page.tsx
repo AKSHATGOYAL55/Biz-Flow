@@ -263,7 +263,7 @@ export default function SignupPage() {
         }),
       });
 
-      router.replace("/");
+      router.replace("/dashboard");
     } catch (err: any) {
       setError(err.message || "Something went wrong");
     } finally {

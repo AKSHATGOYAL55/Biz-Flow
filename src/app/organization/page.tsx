@@ -19,6 +19,8 @@ export default function CreateOrganizationPage() {
       headers: {
         "Content-Type": "application/json",
       },
+       credentials: "include",
+        cache: "no-store", 
       body: JSON.stringify({ name }),
     });
 
@@ -28,8 +30,12 @@ export default function CreateOrganizationPage() {
     // yha pr change hoga
 
     if (res.ok) {
+      router.refresh(); // Refresh to update any server-side data
       router.push("/dashboard");
-    }
+    }else {
+  const data = await res.json();
+  alert(data.error || "Failed to create organization");
+}
 
     //yha tk 
   };
