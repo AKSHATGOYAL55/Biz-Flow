@@ -4,10 +4,18 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { motion } from "framer-motion";
 import { Mail, Lock, Eye, EyeOff, Loader2 } from "lucide-react";
-import { supabase } from "@/lib/supabase/client";
+
+// ❌ OLD (galat / risky in App Router)
+// import { supabase } from "@/lib/supabase/client";
+
+// ✅ NEW (CORRECT – factory based browser client)
+import { createSupabaseBrowserClient } from "@/lib/supabase/client";
 
 export default function LoginPage() {
   const router = useRouter();
+
+  // ✅ NEW: supabase client instance (browser only)
+  const supabase = createSupabaseBrowserClient();
 
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -26,6 +34,7 @@ export default function LoginPage() {
     try {
       setLoading(true);
 
+      // ✅ LOGIN (authentication)
       const { error } = await supabase.auth.signInWithPassword({
         email,
         password,
@@ -33,6 +42,13 @@ export default function LoginPage() {
 
       if (error) throw error;
 
+      // ✅ IMPORTANT (INDUSTRY LEVEL)
+      // session cookie ko sync karne ke liye
+      // taaki server layout turant user ko pehchaan le
+      await supabase.auth.getSession();
+
+      // ✅ CORRECT REDIRECT
+      // "/" tumhara protected home/dashboard hai
       router.replace("/");
     } catch (err: any) {
       setError(err.message || "Invalid email or password");
@@ -120,16 +136,6 @@ export default function LoginPage() {
                 {showPassword ? <EyeOff size={16} /> : <Eye size={16} />}
               </button>
             </div>
-          </div>
-
-          {/* Forgot password */}
-          <div className="text-right">
-            <span
-              className="text-sm text-indigo-600 cursor-pointer hover:underline"
-              onClick={() => router.push("/forgot-password")}
-            >
-              Forgot password?
-            </span>
           </div>
 
           {/* Submit */}

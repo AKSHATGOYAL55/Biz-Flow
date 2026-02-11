@@ -19,6 +19,17 @@ export default async function ProtectedLayout({
     redirect("/login");
   }
 
+
+  const { data: member } = await supabase
+    .from("organization_members")
+    .select("organization_id")
+    .eq("user_id", user.id)
+    .single();
+
+  if (!member) {
+    redirect("/organization"); // your page path
+  }
+
   return (
     <section className="min-h-screen bg-gray-50">
       {children}
