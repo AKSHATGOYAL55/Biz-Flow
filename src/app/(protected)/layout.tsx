@@ -20,6 +20,17 @@ export default async function ProtectedLayout({
   }
 
 
+  const { data: org } = await supabase
+    .from("organizations")
+    .select("id")
+    .eq("created_by", user.id)
+    .single();
+
+  if (!org) {
+    redirect("/onboarding"); // if no org
+  }
+
+
   const { data: member } = await supabase
     .from("organization_members")
     .select("organization_id")

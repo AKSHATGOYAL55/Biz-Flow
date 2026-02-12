@@ -26,6 +26,12 @@ export default function CreateOrganizationPage() {
 
     setLoading(false);
 
+//     const {
+//   data: { user },
+// } = await supabase.auth.getUser();
+
+// console.log("SERVER USER:", user);
+
 
     // yha pr change hoga
 
