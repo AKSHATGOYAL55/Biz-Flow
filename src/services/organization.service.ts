@@ -15,7 +15,7 @@ export async function createOrganization(name: string) {
     data: { user },
   } = await supabase.auth.getUser();
 
-  // console.log("Server user : ", user)
+  console.log("Server user : ", user)
 
   if (!user) {
     throw new Error("Unauthorized");
