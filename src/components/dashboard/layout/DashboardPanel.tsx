@@ -146,6 +146,7 @@ export default function DashboardPanel({
             icon={<Bell size={20} />}
             label="Notifications"
             open={open}
+            onClick={() => router.push("/invoices")}
           />
           <SidebarItem
             icon={<Settings size={20} />}
